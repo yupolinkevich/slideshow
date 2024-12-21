@@ -7,6 +7,7 @@ import io.ypolin.slideshow.dto.ImageRequest;
 import io.ypolin.slideshow.event.GlobalEvent;
 import io.ypolin.slideshow.event.GlobalEventPublisher;
 import io.ypolin.slideshow.event.ImageLifecycleEvent;
+import io.ypolin.slideshow.service.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -43,7 +44,7 @@ public class ImageService {
 
     @Transactional
     public void deleteImage(long id) {
-        Image image = imageRepository.findById(id).orElseThrow(() -> new IllegalArgumentException(String.format("Image [%d] doesn't exist.", id)));
+        Image image = imageRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(String.format("Image [%d] doesn't exist.", id)));
         image.getSlideshows().forEach(slideshow -> {
             slideshow.getImages().removeIf(img->img.getId().equals(id));
         });

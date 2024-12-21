@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
@@ -52,8 +53,8 @@ public class SlideshowImageController {
 
     @GetMapping("slideShow/{id}/slideshowOrder")
     @Operation(summary = "Get ordered list of images in a slideshow", description = "Get list of images in the slideshow ordered by their addition date")
-    public List<ImageResponse> getOrderedImagesInSlideshow(@PathVariable long id) {
-        List<Image> orderedImageList = slideshowService.getOrderedImageList(id);
+    public List<ImageResponse> getOrderedImagesInSlideshow(@PathVariable long id, @RequestParam(defaultValue = "DESC") @Valid Sort.Direction sortDirection) {
+        List<Image> orderedImageList = slideshowService.getOrderedImageList(id, sortDirection);
         return orderedImageList.stream().map(image -> conversionService.convert(image, ImageResponse.class)).toList();
     }
 
@@ -64,7 +65,7 @@ public class SlideshowImageController {
 
     @GetMapping("/images/search")
     public SearchImagesResponse searchImages(@RequestParam(required = false) Long duration,
-                                             @RequestParam (required = false) List<String> keywords,
+                                             @RequestParam(required = false) List<String> keywords,
                                              @RequestParam(defaultValue = "0") int pageIndex,
                                              @RequestParam(defaultValue = "10") int pageSize) {
         if (duration == null && (keywords == null || keywords.isEmpty())) {

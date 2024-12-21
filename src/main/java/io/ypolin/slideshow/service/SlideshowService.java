@@ -6,10 +6,13 @@ import io.ypolin.slideshow.data.entity.Slideshow;
 import io.ypolin.slideshow.dto.SlideshowRequest;
 import io.ypolin.slideshow.event.GlobalEvent;
 import io.ypolin.slideshow.event.GlobalEventPublisher;
+import io.ypolin.slideshow.service.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -32,7 +35,7 @@ public class SlideshowService {
         Iterable<Image> existingImages = imageRepository.findAllById(slideshowRequest.getImagesIds());
         existingImages.forEach(images::add);
         if (images.size() != slideshowRequest.getImagesIds().size()) {
-            throw new IllegalArgumentException("Could not find images for the provided IDs");
+            throw new ResourceNotFoundException("Could not find images for the provided IDs");
         }
         slideshow.setImages(images);
         return slideshowRepository.save(slideshow);
@@ -42,9 +45,10 @@ public class SlideshowService {
         slideshowRepository.deleteById(slideshowId);
     }
 
-    public List<Image> getOrderedImageList(long slideshowId) {
+    public List<Image> getOrderedImageList(long slideshowId, Sort.Direction direction ) {
         Slideshow slideshow = findSlideshow(slideshowId);
-        List<Image> imageList = slideshow.getImages().stream().sorted(Comparator.comparing(Image::getAddedAt,Comparator.reverseOrder())).toList();
+        Comparator<LocalDateTime> comparator = (direction == Sort.Direction.ASC) ? Comparator.naturalOrder() : Comparator.reverseOrder();
+        List<Image> imageList = slideshow.getImages().stream().sorted(Comparator.comparing(Image::getAddedAt, comparator)).toList();
         return imageList;
     }
 
@@ -52,14 +56,14 @@ public class SlideshowService {
         Slideshow slideshow = findSlideshow(slideshowId);
         List<Image> images = slideshow.getImages().stream().filter(img -> img.getId().equals(imgId)).collect(Collectors.toList());
         if (images.isEmpty()) {
-            throw new IllegalArgumentException(String.format("Image [%d] was not found for the slideshow [%d].", imgId, slideshowId));
+            throw new ResourceNotFoundException(String.format("Image [%d] was not found for the slideshow [%d].", imgId, slideshowId));
         }
         images.forEach(image -> globalEventPublisher.publishSlideshowEvent(GlobalEvent.EventType.PROOF_OF_PLAY, image, slideshow));
     }
 
     private Slideshow findSlideshow(long slideshowId) {
         Slideshow slideshow = slideshowRepository.findById(slideshowId)
-                .orElseThrow(() -> new IllegalArgumentException(String.format("Slideshow [%d] doesn't exist.", slideshowId)));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("Slideshow [%d] doesn't exist.", slideshowId)));
         return slideshow;
     }
 }

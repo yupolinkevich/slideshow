@@ -6,6 +6,7 @@ import io.ypolin.slideshow.data.entity.Slideshow;
 import io.ypolin.slideshow.dto.ImageRequest;
 import io.ypolin.slideshow.event.GlobalEvent;
 import io.ypolin.slideshow.event.GlobalEventPublisher;
+import io.ypolin.slideshow.service.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -85,7 +86,7 @@ class ImageServiceTest {
     @Test
     void testDeleteNonExistingImage() {
         when(imageRepository.findById(1l)).thenReturn(Optional.empty());
-        assertThrows(IllegalArgumentException.class, () -> imageService.deleteImage(1));
+        assertThrows(ResourceNotFoundException.class, () -> imageService.deleteImage(1));
     }
 
     @Test

@@ -9,6 +9,7 @@ import io.ypolin.slideshow.dto.SlideshowRequest;
 import io.ypolin.slideshow.service.ImageService;
 import io.ypolin.slideshow.service.SlideshowService;
 import io.ypolin.slideshow.service.TestUtils;
+import io.ypolin.slideshow.service.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -16,6 +17,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -77,11 +79,11 @@ class SlideshowImageControllerTest {
 
     @Test
     void testDeleteNonExistingImage() throws Exception {
-        doThrow(new IllegalArgumentException("Image doesn't exists")).when(imageService).deleteImage(1);
+        doThrow(new ResourceNotFoundException("Image doesn't exist")).when(imageService).deleteImage(1);
         mockMvc.perform(delete("/deleteImage/{id}",1))
-                .andExpect(status().isBadRequest())
+                .andExpect(status().isNotFound())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.message").value("Invalid input"));
+                .andExpect(jsonPath("$.message").value("Resource not found error"));
     }
 
     @Test
@@ -110,7 +112,7 @@ class SlideshowImageControllerTest {
     @Test
     void testGetOrderedImagesInSlideshow() throws Exception {
         List<Image> expectedImgList = List.of(TestUtils.generateDummyImage(1, null), TestUtils.generateDummyImage(2,null));
-        when(slideshowService.getOrderedImageList(1)).thenReturn(expectedImgList);
+        when(slideshowService.getOrderedImageList(1, Sort.Direction.DESC)).thenReturn(expectedImgList);
         mockMvc.perform(get("/slideShow/{id}/slideshowOrder",1))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))

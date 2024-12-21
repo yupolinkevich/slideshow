@@ -7,6 +7,7 @@ import io.ypolin.slideshow.data.entity.Slideshow;
 import io.ypolin.slideshow.dto.SlideshowRequest;
 import io.ypolin.slideshow.event.GlobalEvent;
 import io.ypolin.slideshow.event.GlobalEventPublisher;
+import io.ypolin.slideshow.service.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,6 +16,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -65,7 +67,7 @@ class SlideshowServiceTest {
         slideshowRequest.setName("test");
         slideshowRequest.setImagesIds(List.of(1l, 2l));
         when(imageRepository.findAllById(slideshowRequest.getImagesIds())).thenReturn(new ArrayList<>());
-        assertThrows(IllegalArgumentException.class, () -> slideshowService.addSlideshow(slideshowRequest));
+        assertThrows(ResourceNotFoundException.class, () -> slideshowService.addSlideshow(slideshowRequest));
         verify(slideshowRepository, times(0)).save(any());
     }
 
@@ -78,7 +80,7 @@ class SlideshowServiceTest {
     @Test
     void testGetSlideshowOrderedImages() {
         when(slideshowRepository.findById(1l)).thenReturn(Optional.of(testSlideshow));
-        List<Image> imageList = slideshowService.getOrderedImageList(1);
+        List<Image> imageList = slideshowService.getOrderedImageList(1, Sort.Direction.DESC);
         assertTrue(imageList.get(0).getAddedAt().isAfter(imageList.get(1).getAddedAt()));
     }
 
@@ -92,7 +94,7 @@ class SlideshowServiceTest {
     @Test
     void testPlayImageIfNotExists() {
         when(slideshowRepository.findById(1l)).thenReturn(Optional.of(testSlideshow));
-        assertThrows(IllegalArgumentException.class, () -> slideshowService.playImage(1,5));
+        assertThrows(ResourceNotFoundException.class, () -> slideshowService.playImage(1,5));
         verify(globalEventPublisher, times(0))
                 .publishSlideshowEvent(any(), any(), any());
     }
