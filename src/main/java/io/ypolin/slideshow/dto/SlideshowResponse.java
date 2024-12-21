@@ -7,6 +7,7 @@ import java.util.List;
 
 @Data
 public class SlideshowResponse {
+    private Long id;
     private String name;
     private List<ImageResponse> images = new ArrayList<>();
 }

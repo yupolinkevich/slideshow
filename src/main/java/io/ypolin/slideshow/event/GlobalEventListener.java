@@ -18,7 +18,7 @@ public class GlobalEventListener {
         //any further actions
     }
     @Async
-    @EventListener()
+    @EventListener
     public void onSlideshowEvent(SlideshowEvent slideshowEvent) {
         log.info(slideshowEvent.getMessage());
         //any further actions

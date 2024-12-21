@@ -1,6 +1,10 @@
 package io.ypolin.slideshow.service;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.*;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -9,10 +13,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-
+@ExtendWith(MockitoExtension.class)
 class ImageURLValidatorTest {
-    private RestTemplate restTemplate = mock(RestTemplate.class);
-    private ImageURLValidator imageURLValidator = new ImageURLValidator(restTemplate);
+    @Mock
+    private RestTemplate restTemplate;
+    @InjectMocks
+    private ImageURLValidator imageURLValidator;
 
     @Test
     void testValidImageUrl() {

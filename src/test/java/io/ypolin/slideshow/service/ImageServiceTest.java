@@ -14,7 +14,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -36,7 +42,7 @@ class ImageServiceTest {
     private Image testEntity;
 
     @BeforeEach
-    public void setup(){
+    public void setup() {
         testEntity = new Image();
         testEntity.setId(1l);
         testEntity.setName("test");
@@ -50,10 +56,11 @@ class ImageServiceTest {
         when(imageRepository.save(any())).thenReturn(testEntity);
 
         Image actual = imageService.addImage(new ImageRequest(TEST_URL, "test", 500));
-        assertEquals(testEntity,actual);
+        assertEquals(testEntity, actual);
 
-        verify(imageRepository,times(1)).save(imageCaptor.capture());
-        verify(globalEventPublisher,times(1)).publishImageLifecycleEvent(GlobalEvent.EventType.IMAGE_ADDED,testEntity);
+        verify(imageURLValidator, times(1)).validateImageUrl(TEST_URL);
+        verify(imageRepository, times(1)).save(imageCaptor.capture());
+        verify(globalEventPublisher, times(1)).publishImageLifecycleEvent(GlobalEvent.EventType.IMAGE_ADDED, testEntity);
         assertEquals("test", imageCaptor.getValue().getName());
         assertEquals(TEST_URL, imageCaptor.getValue().getUrl());
         assertEquals(500, imageCaptor.getValue().getDuration());
@@ -82,6 +89,11 @@ class ImageServiceTest {
     }
 
     @Test
-    void searchImages() {
+    void testSearchImages() {
+        PageRequest expectedPageRequest = PageRequest.of(0, 10);
+        PageImpl<Image> expected = new PageImpl<>(List.of(testEntity), expectedPageRequest, 1);
+        when(imageRepository.findAll(any(Specification.class), eq(expectedPageRequest))).thenReturn(expected);
+        Page<Image> page = imageService.searchImages(500l, List.of("test"), 0, 10);
+        assertEquals(expected, page);
     }
 }

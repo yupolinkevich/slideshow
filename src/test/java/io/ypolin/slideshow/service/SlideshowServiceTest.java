@@ -40,12 +40,7 @@ class SlideshowServiceTest {
 
     @BeforeEach
     public void setup() {
-        testSlideshow = new Slideshow();
-        testSlideshow.setId(1l);
-        testSlideshow.setName("test");
-        Image img1 = generateDummyImage(1, LocalDateTime.of(2024, 12, 12, 7, 45));
-        Image img2 = generateDummyImage(2, LocalDateTime.of(2024, 12, 15, 8, 45));
-        testSlideshow.setImages(List.of(img1, img2));
+        testSlideshow = TestUtils.generateDummySlideshow(1);
     }
 
     @Test
@@ -53,7 +48,7 @@ class SlideshowServiceTest {
         SlideshowRequest slideshowRequest = new SlideshowRequest();
         slideshowRequest.setName("test");
         slideshowRequest.setImagesIds(List.of(1l, 2l));
-        List<Image> existingImages = List.of(generateDummyImage(1,null), generateDummyImage(2,null));
+        List<Image> existingImages = List.of(TestUtils.generateDummyImage(1,null), TestUtils.generateDummyImage(2,null));
         when(imageRepository.findAllById(slideshowRequest.getImagesIds())).thenReturn(existingImages);
         ArgumentCaptor<Slideshow> slideshowArgumentCaptor = ArgumentCaptor.forClass(Slideshow.class);
         slideshowService.addSlideshow(slideshowRequest);
@@ -100,15 +95,5 @@ class SlideshowServiceTest {
         assertThrows(IllegalArgumentException.class, () -> slideshowService.playImage(1,5));
         verify(globalEventPublisher, times(0))
                 .publishSlideshowEvent(any(), any(), any());
-    }
-
-    private Image generateDummyImage(long id, LocalDateTime dateTime) {
-        Image img = new Image();
-        img.setId(id);
-        img.setName("test");
-        img.setUrl("https://url.test");
-        img.setDuration(500);
-        img.setAddedAt(dateTime == null ? LocalDateTime.now() : dateTime);
-        return img;
     }
 }

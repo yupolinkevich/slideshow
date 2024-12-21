@@ -19,6 +19,7 @@ public class SlideshowToDtoConverter implements Converter<Slideshow, SlideshowRe
     @Override
     public SlideshowResponse convert(Slideshow source) {
         SlideshowResponse slideshowResponse = new SlideshowResponse();
+        slideshowResponse.setId(source.getId());
         slideshowResponse.setName(source.getName());
         slideshowResponse.setImages(source.getImages()
                 .stream()

@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.ConversionService;
 import org.springframework.data.domain.Page;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -66,6 +67,9 @@ public class SlideshowImageController {
                                              @RequestParam (required = false) List<String> keywords,
                                              @RequestParam(defaultValue = "0") int pageIndex,
                                              @RequestParam(defaultValue = "10") int pageSize) {
+        if (duration == null && (keywords == null || keywords.isEmpty())) {
+            throw new IllegalArgumentException("Missing search parameters");
+        }
         Page<Image> imagesPage = imageService.searchImages(duration, keywords, pageIndex, pageSize);
         SearchImagesResponse searchImagesResponse = new SearchImagesResponse();
         searchImagesResponse.setSearch(new SearchImagesResponse.SearchMetadata(duration, keywords));

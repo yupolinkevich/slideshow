@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -26,6 +27,7 @@ public class ImageService {
     @Autowired
     private GlobalEventPublisher globalEventPublisher;
 
+    @Transactional
     public Image addImage(ImageRequest imageRequest) {
         imageURLValidator.validateImageUrl(imageRequest.getUrl());
         Image image = new Image();
@@ -50,8 +52,14 @@ public class ImageService {
     }
 
     public Page<Image> searchImages(Long duration, List<String> keywords, int pageIndex, int pageSize){
-
-        Specification<Image> searchSpec = ImageQuerySpecification.durationEquals(duration).or(ImageQuerySpecification.urlContainsAny(keywords));
+        List<Specification<Image>> specList = new ArrayList<>();
+        if (duration != null) {
+            specList.add(ImageQuerySpecification.durationEquals(duration));
+        }
+        if(keywords!=null && !keywords.isEmpty()){
+            specList.add(ImageQuerySpecification.urlContainsAny(keywords));
+        }
+        Specification<Image> searchSpec = Specification.anyOf(specList);
         return imageRepository.findAll(searchSpec, PageRequest.of(pageIndex, pageSize));
     }
 }

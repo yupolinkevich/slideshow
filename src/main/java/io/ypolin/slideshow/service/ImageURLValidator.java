@@ -10,19 +10,9 @@ import org.springframework.web.client.RestTemplate;
 
 @Service
 public class ImageURLValidator {
-
+    @Autowired
     private RestTemplate restTemplate;
-    private final UrlValidator urlValidator;
-
-    public ImageURLValidator() {
-        this.restTemplate = new RestTemplate();
-        this.urlValidator = new UrlValidator(new String[]{"http", "https"});
-    }
-
-    public ImageURLValidator(RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
-        this.urlValidator = new UrlValidator(new String[]{"http", "https"});
-    }
+    private final UrlValidator urlValidator = new UrlValidator(new String[]{"http", "https"});
 
     public void validateImageUrl(String imageUrl) {
         boolean isValid = urlValidator.isValid(imageUrl);
