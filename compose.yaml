@@ -1,0 +1,36 @@
+services:
+  slideshow-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 8080:8080
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/slideshow
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_JPA_DATABASE_PLATFORM=org.hibernate.dialect.MySQL8Dialect
+    networks:
+      - spring-mysql-net
+    depends_on:
+      - mysql
+
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: slideshow
+      MYSQL_ALLOW_EMPTY_PASSWORD: true
+      MYSQL_PASSWORD:
+      MYSQL_ROOT_PASSWORD:
+    ports:
+      - 3306:3306
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - spring-mysql-net
+
+networks:
+  spring-mysql-net:
+
+volumes:
+  mysql-data:
