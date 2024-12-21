@@ -158,19 +158,21 @@ The API returns standardized error responses with the following HTTP codes
 }
 ```
 ---
-## Event
-The API returns standardized error responses with the following HTTP codes
-* **400 Bad Request**: When input validation fails (e.g., invalid URL).
-* **404 Not Found**: When an entity (e.g., image, slideshow) with the provided ID is not found.
-* **500 Internal Server Error**: For unexpected server errors.
+## Event Publishing
+The API publish the following events using Spring Application Event Publisher
 
-#### Error Message Body:
-```json
-{
-  "message": "Resource not found",
-  "details": "Image [7] doesn't exist."
-}
+Image lifecycle events (transactional)
+* **IMAGE_ADDED**: when new image is successfully stored in db
+* **IMAGE_DELETED**: when images is successfully removed from db
+
+Slideshow events
+* **PROOF-OF-PLAY**: triggered by API `POST slideShow/{id}/proof-of-play/{imageId}` when image is played
+
+```bash
+2024-12-21T20:51:26.350Z  INFO 1 --- [         task-1] i.y.slideshow.event.GlobalEventListener  : EVENT_TYPE: IMAGE_ADDED. MSG:Image was registered in the app. PAYLOAD: {image_id=1, duration=1000, name=cat, url=https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Cat03.jpg/1200px-Cat03.jpg}
+    
 ```
+
 ## Installation
 
 1. Clone the repository:
