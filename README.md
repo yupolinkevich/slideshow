@@ -19,8 +19,8 @@ The Slideshow API allows users to manage a list of image URLs and play a slidesh
 ## Technologies Used
 
 - **Java 17**: For the backend application development.
-- **Spring Boot 3.4.1**: For building RESTful APIs.
-- **MySQL**: For persistent data storage.
+- **Spring Boot 3.4.x**: For building RESTful APIs.
+- **MySQL 8.0**: For persistent data storage.
 - **JUnit 5**: For unit testing.
 - **Maven**: For build and dependency management.
 - **Docker**: For containerization.
@@ -195,10 +195,14 @@ The API returns standardized error responses with the following HTTP codes
     ```bash
     java -jar target/slideshow.jar
 6. Access the service:
-* API: http://localhost:8080
-* Swagger UI: http://localhost:8080/swagger-ui.html
 
-7. Docker Deployment
-    ```bash
-    docker build -t slideshow .
+   * API: http://localhost:8080
+   * Swagger UI: http://localhost:8080/swagger-ui.html
+
+**Docker Deployment**
+
+Run the following to command to build images and start containers from the root app directory
+    
+   ```bash
+    docker compose up --build
 
